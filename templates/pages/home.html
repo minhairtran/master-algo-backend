@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block headtitle %}
+Home
+{% endblock headtitle %}
+
+{% block content %}
+Welcome to my app
+
+<div id='algorithms'>
+Replace
+</div>
+
+
+<script>
+const algorithmsElement = document.getElementById('algorithms')
+
+const xhr = new XMLHttpRequest()
+const method = 'GET'
+const url = '/algorithms'
+const responseType = "json"
+
+xhr.responseType = responseType;
+xhr.open(method, url)
+
+function formatAlgorithmElement(algorithm){
+    formattedAlgorithm = "<div class='mb-4'><h1>" + algorithm.id +". " + algorithm.title  +"</h1>"  + "<p>" + algorithm.subtitle + "</p></div> "
+    return formattedAlgorithm
+}
+
+xhr.onload = function(){
+    const serverResponse = xhr.response
+    const listItems = serverResponse.response
+    var finalAlgorithmStr = ""
+    var i
+    for(i=0;i<listItems.length;i++){
+        var algorithmObj = listItems[i]
+        var currentItem = formatAlgorithmElement(algorithmObj)
+        finalAlgorithmStr +=currentItem
+    }
+    algorithmsElement.innerHTML = finalAlgorithmStr;
+}
+xhr.send()
+
+</script>
+{% endblock content %}

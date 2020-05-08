@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block headtitle %}
+Profile
+{% endblock headtitle %}
+
+{% block content %}
+<div class='row text-center'>
+    <div class='col'>
+        <h1>Profile</h1>
+    </div>
+</div>
+
+
+<div class='row mb-3' id='feedback-create-form'>
+    <div class='col-md-4 mx-auto col-10'>
+        <form class='form' method='POST' action='/feedbacks/create'>
+            {% csrf_token %}
+            <div class='d-none alert alert-danger' id='feedback-create-form-error'></div>
+            <input type='hidden' value='/profile' name='next' />
+            <textarea required='required' class='form-control' name='content' placeholder='Your feedback...'></textarea>
+            <button type='submit' class='btn btn-primary'>Save</button>
+        </form>
+    </div>
+</div>
+
+<div id='feedbacks'>
+</div>
+
+
+<script>
+const feedbacksContainerEl = document.getElementById('feedbacks')
+const feedbackCreateFormEl = document.getElementById('feedback-create-form')
+
+function handleFeedbackCreateFormError(msg, display){
+    if(display === true){
+        feedbackCreateFormError = document.getElementById('feedback-create-form-error')
+        feedbackCreateFormError.setAttribute('class', 'd-block alert alert-danger')
+        feedbackCreateFormError.innerText = msg
+    }else{
+        feedbackCreateFormError = document.getElementById('feedback-create-form-error')
+        feedbackCreateFormError.setAttribute('class', 'd-none alert alert-danger')
+    }
+}
+
+function handleFeedbackCreateFormDidSumbit(event) {
+    event.preventDefault()
+    const myForm = event.target
+    const myFormData = new FormData(myForm)
+    const url = myForm.getAttribute("action")
+    const method = myForm.getAttribute("method")
+    const xhr = new XMLHttpRequest()
+    const responseType = "json"
+    xhr.responseType = responseType;
+    xhr.open(method, url)
+    xhr.setRequestHeader("HTTP_X_REQUESTED_WITH", "XMLHttpRequest")
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
+    xhr.onload = function() {
+        if(xhr.status === 201){
+            handleFeedbackCreateFormError('', false)
+            const newFeedbackJson = xhr.response
+            const newFeedbackElement = formatFeedbackElement(newFeedbackJson)
+            const ogHtml = feedbacksContainerEl.innerHTML
+            feedbacksContainerEl.innerHTML = newFeedbackElement + ogHtml
+            myForm.reset()
+        }
+        else if(xhr.status === 400){
+            const errorJson = xhr.response
+            const contentError = errorJson.content
+            if(contentError){
+                let errorMsg = contentError[0]
+                if(errorMsg){
+                     handleFeedbackCreateFormError(errorMsg, true)
+                }
+                else{
+                    alert("An error occured. Please try again.")
+                }     
+            }
+            else{
+                alert("An error occured. Please try again.")
+            }
+        }
+        else if(xhr.status === 500){
+            alert("There's a server error. Please try again.")
+        }
+    }
+    xhr.send(myFormData)
+}
+
+feedbackCreateFormEl.addEventListener('submit', handleFeedbackCreateFormDidSumbit)
+
+function formatFeedbackElement(feedback){
+    formattedFeedback = "<div class='mb-4'><h1>" + feedback.id +". </h1>"  + "<p>" + feedback.content + "</p></div> "
+    return formattedFeedback
+}
+
+function loadFeedbacks(feedbacksElement){
+const xhr = new XMLHttpRequest()
+const method = 'GET'
+const url = '/feedbacks'
+const responseType = "json"
+xhr.responseType = responseType;
+xhr.open(method, url)
+xhr.onload = function(){
+    const serverResponse = xhr.response
+    const listItems = serverResponse.response
+    var finalFeedbackStr = ""
+    var i
+    for(i=0;i<listItems.length;i++){
+        var feedbackObj = listItems[i]
+        var currentItem = formatFeedbackElement(feedbackObj)
+        finalFeedbackStr +=currentItem
+    }
+    feedbacksElement.innerHTML = finalFeedbackStr;
+}
+xhr.send()
+}
+
+loadFeedbacks(feedbacksContainerEl)
+</script>
+{% endblock content %}
