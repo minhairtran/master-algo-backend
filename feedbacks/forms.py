@@ -1,8 +1,9 @@
 from django import forms
+from django.conf import settings
 
 from .models import Feedback
 
-MAX_FEEDBACK_LENGTH = 500
+MAX_FEEDBACK_LENGTH = settings.MAX_FEEDBACK_LENGTH
 
 class FeedbackForm(forms.ModelForm):
     class Meta:
