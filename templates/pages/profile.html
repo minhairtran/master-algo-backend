@@ -82,6 +82,12 @@ function handleFeedbackCreateFormDidSumbit(event) {
         }
         else if(xhr.status === 500){
             alert("There's a server error. Please try again.")
+        } else if(xhr.status === 401) {
+            alert("You must login.")
+            window.location.href = "/account/login"
+        } else if(xhr.status === 403) {
+             alert("You must login.")
+            window.location.href = "/account/login"
         }
     }
     xhr.send(myFormData)
@@ -92,28 +98,6 @@ feedbackCreateFormEl.addEventListener('submit', handleFeedbackCreateFormDidSumbi
 function formatFeedbackElement(feedback){
     formattedFeedback = "<div class='mb-4'><h1>" + feedback.id +". </h1>"  + "<p>" + feedback.content + "</p></div> "
     return formattedFeedback
-}
-
-function loadFeedbacks(feedbacksElement){
-const xhr = new XMLHttpRequest()
-const method = 'GET'
-const url = '/feedbacks'
-const responseType = "json"
-xhr.responseType = responseType;
-xhr.open(method, url)
-xhr.onload = function(){
-    const serverResponse = xhr.response
-    const listItems = serverResponse.response
-    var finalFeedbackStr = ""
-    var i
-    for(i=0;i<listItems.length;i++){
-        var feedbackObj = listItems[i]
-        var currentItem = formatFeedbackElement(feedbackObj)
-        finalFeedbackStr +=currentItem
-    }
-    feedbacksElement.innerHTML = finalFeedbackStr;
-}
-xhr.send()
 }
 
 loadFeedbacks(feedbacksContainerEl)
