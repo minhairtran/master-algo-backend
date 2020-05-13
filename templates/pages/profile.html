@@ -51,6 +51,7 @@ function handleFeedbackCreateFormDidSumbit(event) {
     const method = myForm.getAttribute("method")
     const xhr = new XMLHttpRequest()
     const responseType = "json"
+    console.log(url)
     xhr.responseType = responseType;
     xhr.open(method, url)
     xhr.setRequestHeader("HTTP_X_REQUESTED_WITH", "XMLHttpRequest")
@@ -98,6 +99,28 @@ feedbackCreateFormEl.addEventListener('submit', handleFeedbackCreateFormDidSumbi
 function formatFeedbackElement(feedback){
     formattedFeedback = "<div class='mb-4'><h1>" + feedback.id +". </h1>"  + "<p>" + feedback.content + "</p></div> "
     return formattedFeedback
+}
+
+function loadFeedbacks(feedbacksElement) {
+    const xhr = new XMLHttpRequest()
+    const method = 'GET' // "POST"
+    const url = "/api/feedbacks/"
+    const responseType = "json"
+    xhr.responseType = responseType
+    xhr.open(method, url)
+    xhr.onload = function() {
+        const serverResponse = xhr.response
+        const listedItems = serverResponse // array
+        var finalTweetStr = ""
+        var i;
+        for (i=0;i<listedItems.length; i++) {
+            var tweetObj = listedItems[i]
+            var currentItem = formatFeedbackElement(tweetObj)
+            finalTweetStr += currentItem
+        }
+        feedbacksElement.innerHTML = finalTweetStr
+    }
+    xhr.send()
 }
 
 loadFeedbacks(feedbacksContainerEl)

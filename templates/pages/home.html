@@ -5,7 +5,7 @@ Home
 {% endblock headtitle %}
 
 {% block content %}
-Welcome to my app
+{% comment %} Welcome to my app
 
 <div id='algorithms'>
 Replace
@@ -40,7 +40,9 @@ xhr.onload = function(){
     }
     algorithmsElement.innerHTML = finalAlgorithmStr;
 }
-xhr.send()
+xhr.send() {% endcomment %}
+
+<div id='root'></div>
 
 </script>
 {% endblock content %}
